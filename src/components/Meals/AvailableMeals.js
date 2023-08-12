@@ -6,10 +6,19 @@ import { useEffect, useState } from 'react';
 const AvailableMeals = () => {
     const [meals, setMeals] = useState([])
     const [isLoading, setIsLoading] = useState(true)
+    const [err, setErr] = useState(null);
 
     useEffect(() => {
+        setErr(null);
+        setIsLoading(true);
         const requestData = async () => {
+
             const response = await fetch('https://react-food-ordering-ff3f4-default-rtdb.firebaseio.com/meals.json')
+
+            if (!response.ok) {
+                throw new Error("Something went wrong!");
+            }
+
             const responseData = await response.json();
 
             const defaultFood = [];
@@ -17,24 +26,33 @@ const AvailableMeals = () => {
             for (const key in responseData) {
                 defaultFood.push(
                     {
-                        id : key,
-                        name : responseData[key].name,
-                        description : responseData[key].description,
-                        price : responseData[key].price,
+                        id: key,
+                        name: responseData[key].name,
+                        description: responseData[key].description,
+                        price: responseData[key].price,
                     }
                 );
             }
             setMeals(defaultFood);
             setIsLoading(false);
         }
-    requestData()
+        requestData().catch((error) => {
+            setErr(error.message)
+            setIsLoading(false)
+        })
 
     }, [])
 
     if (isLoading) {
         return <section className={classes.loading}>
-                <p> Loading... </p>
-            </section>
+            <p> Loading... </p>
+        </section>
+    }
+
+    if (err) {
+        return <section className={classes.error}>
+            <p>{err}</p>
+        </section>
     }
 
     const mealsList = meals.map((meal) =>

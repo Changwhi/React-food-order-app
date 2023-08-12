@@ -8,6 +8,10 @@
     text-align: center;
     color: red;
 }
+.error {
+    text-align: center;
+    color: red;
+}
 
 .meals ul {
   list-style: none;
