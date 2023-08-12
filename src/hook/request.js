@@ -1,12 +1,12 @@
 import { useState } from "react";
 
-const useRequest = (requestInfo, option) => {
+const useRequest = () => {
     const [currentState, setCurrentState] = useState({
         isLoading: false,
         error: '',
     });
 
-    const sendRequest = async () => {
+    const sendRequest = async (requestInfo, option) => {
         setCurrentState({
             ...currentState,
             isLoading: true,
