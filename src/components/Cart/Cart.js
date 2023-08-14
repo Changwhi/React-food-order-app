@@ -1,4 +1,4 @@
-import { useContext, useState } from 'react';
+import React, { useContext, useState } from 'react';
 
 import Modal from '../UI/Modal';
 import classes from './Cart.module.css';
@@ -8,6 +8,8 @@ import Checkout from './Checkout';
 
 const Cart = props => {
     const [isCheckout, setIsCheckout] = useState(false);
+    const [isSubmitting, setIsSubmtting] = useState(false)
+    const [isSent, setIsSent] = useState(false)
 
     const cartCtx = useContext(CartContext);
 
@@ -38,21 +40,44 @@ const Cart = props => {
     };
 
     const modalButtons = (
-            <div className={classes.actions}>
-                <button className={classes['button--alt']} onClick={props.onClose}>Close</button>
-                {hasItems && <button className={classes.button} onClick={checkoutHandler}>Order</button>}
-            </div>
+        <div className={classes.actions}>
+            <button className={classes['button--alt']} onClick={props.onClose}>Close</button>
+            {hasItems && <button className={classes.button} onClick={checkoutHandler}>Order</button>}
+        </div>
     );
+
+    const onUpdate = async (data) => {
+        setIsSubmtting(true)
+        const response = await fetch("https://react-food-ordering-ff3f4-default-rtdb.firebaseio.com/", {
+            method: "post",
+            body: JSON.stringify({
+                user: data,
+                orderedItems: cartCtx.items
+            })
+        })
+        setIsSubmtting(false)
+        setIsSent(true)
+    }
+
+    const defaultModal = <React.Fragment>
+        {cartitems}
+        <div className={classes.total}>
+            <span>Total Amount</span>
+            <span>{totalAmount}</span>
+        </div>
+        {isCheckout && <Checkout onUpdate={onUpdate} onCancel={props.onClose} />}
+        {!isCheckout && modalButtons}
+    </React.Fragment>
+
+    const submittingModal = <p> Submitting.. </p>
+
+    const sentModal = <p> Complete </p>
 
     return (
         <Modal onClose={props.onClose}>
-            {cartitems}
-            <div className={classes.total}>
-                <span>Total Amount</span>
-                <span>{totalAmount}</span>
-            </div>
-            {isCheckout && <Checkout onCancel={props.onClose}/>}
-            {!isCheckout && modalButtons}
+        {!isSubmitting && !isSent && defaultModal}
+        {isSubmitting && submittingModal}
+        {!isSubmitting && isSent && sentModal}
         </Modal>
     );
 };
