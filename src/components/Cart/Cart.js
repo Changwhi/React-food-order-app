@@ -57,6 +57,7 @@ const Cart = props => {
         })
         setIsSubmtting(false)
         setIsSent(true)
+        cartCtx.clearItem()
     }
 
     const defaultModal = <React.Fragment>
